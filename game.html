@@ -1,0 +1,299 @@
+﻿<!doctype html> 
+<html lang="en"> 
+<head> 
+	<meta charset="UTF-8" />
+	<title>Phaser - Making your first game, part 1</title>
+	<script type="text/javascript" src="js/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+    Player = function(name, type, health, arr_weapons, startnode) {
+        this.name = name;
+        this.type = type;
+        this.health = health;
+        this.weapons = arr_weapons;
+        this.currentnode = startnode;
+
+        this.sprite = game.add.sprite(startnode.position.x, startnode.position.y, 'enemy', 'shadow');
+
+        this.sprite.anchor.set(0.5);
+        game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
+        this.sprite.body.immovable = true;
+        this.sprite.rotation = game.physics.arcade.angleToPointer(sprite);
+    };
+
+    Player.prototype.damage = function (health) {
+        this.health -= health;
+        if (this.health <= 0) {
+            this.sprite.kill();
+        }
+    };
+
+    Player.prototype.isDead = function () {
+        if (this.health <= 0) {
+            return true;
+        }
+        return false;
+    };
+
+    Player.prototype.moveTo = function (direction) {
+        var validmove = this.checkMove(direction);
+        if (validMove === true)
+        {
+            switch (direction) {
+                case 'left':
+                    this.currentnode = this.currentnode.left;
+                    break;
+                case 'right':
+                    this.currentnode = this.currentnode.right;
+                    break;
+                case 'up':
+                    this.currentnode = this.currentnode.up;
+                    break;
+                case 'down':
+                    this.currentnode = this.currentnode.down;
+                    break;
+            }
+        }
+        if (validmove === true)
+        {
+            this.sprite.position.set(this.currentnode.x, this.currentnode.y);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    };
+
+    Player.prototype.checkMove = function (direction)
+    {
+        for(var i = 0; i < playerlist.length; i++)
+        {
+            if(playerlist[i] !== this)
+            {
+                switch (direction) {
+                    case 'left':
+                        if (this.currentnode.left === playerlist[i].currentnode || currentnode.left === null)
+                            return false;
+                        break;
+                    case 'right':
+                        if (this.currentnode.right === playerlist[i].currentnode || currentnode.right === null)
+                            return false;
+                        break;
+                    case 'up':
+                        if (this.currentnode.up === playerlist[i].currentnode || currentnode.up === null)
+                            return false;
+                        break;
+                    case 'down':
+                        if (this.currentnode.down === playerlist[i].currentnode || currentnode.down === null)
+                            return false;
+                        break;
+                }
+            }
+        }
+        return true;
+    }
+
+    AIPlayer = function (name, type, health, arr_weapons, startnode, difficulty) {
+        this.base = Player;
+        this.base(name, type, health, arr_weapons, startnode)
+        this.difficulty = difficulty;
+        this.previousmove = null;
+    };
+
+    AIPlayer.prototype = new Player();
+
+    AIPlayer.prototype.makeMove = function () {
+        var direction;
+        var possibledirections = [];
+        if(this.checkMove('left'))
+            possibledirections.push('left');
+        if(this.checkMove('right'))
+            possibledirections.push('right');
+        if(this.checkMove('up'))
+            possibledirections.push('up');
+        if(this.checkMove('down'))
+            possibledirections.push('down');
+        possibledirections.push(null);
+        possibledirections.push(previousmove);
+        possibledirections.push(previousmove);
+        possibledirections.push(previousmove);
+        var rand = (Math.random() * possibledirections.length);
+        this.moveTo(possibledirections[rand]);
+        this.previousmove = direction;
+    };
+
+    AIPlayer.prototype.getNextAttack = function () {
+        switch (Math.random() * 8) {
+            case 0:
+                return enemyplayer.currentnode.left.position;
+                break;
+            case 1:
+                return enemyplayer.currentnode.right.position;
+                break;
+            case 2:
+                return enemyplayer.currentnode.up.position;
+                break;
+            case 3:
+                return enemyplayer.currentnode.down.position;
+                break;
+            default:
+                return enemyplayer.currentnode.position;
+                break;
+        }
+    };
+
+    function Position(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    function Node(position, left, right, up, down, active) {
+        this.position = position;
+        this.left = left || null;
+        this.right = right || null;
+        this.up = up || null;
+        this.down = down || null;
+        this.active = active || true;
+    }
+
+    function Weapon(name, firerate, travelspeed, bulletsize, damage, blastradius) {
+        this.name = name;
+        this.firerate = firerate;
+        this.speed = travelspeed;
+        this.size = bulletsize;
+        this.damage = damage;
+        this.blastradius = blastradius;
+    }
+
+    function createnodes()
+    {
+        var node1 = new Node(new Position(400, 300));
+        var node2 = new Node(new Position(300, 300));
+        var node3 = new Node(new Position(500, 300));
+        var node4 = new Node(new Position(400, 400));
+        var node5 = new Node(new Position(400, 200));
+
+        node1.left = node2;
+        node1.right = node3;
+        node1.up = node4;
+        node1.down = node5;
+
+        node2.right = node1;
+
+        node3.left = node1;
+
+        node4.down = node1;
+
+        node5.up = node1;
+
+        nodemap.push(node1);
+        nodemap.push(node2);
+        nodemap.push(node3);
+        nodemap.push(node4);
+        nodemap.push(node5);
+    }
+
+    function loadnodes()
+    {
+        for (var i = 0; i < nodemap.length; i++) 
+        {
+            var nodesprite = game.add.sprite(nodemap[i].position.x, nodemap[i].position.y, 'node');
+            nodesprite.anchor.set(0.5);
+            nodesprites.push(nodesprite);
+        }
+    }
+
+    function createplayers()
+    {
+        var weaponarray = [];
+        weaponarray.push(new Weapon("testgun", 100, 2000, 0.1, 50, null));
+
+        var player1 = new Player("player1", 1, 100, weaponarray, node1);
+        var player2 = new Player("player2", 1, 100, weaponarray, node2);
+        playerlist.push(player1);
+        playerlist.push(player2);
+    }
+
+    var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+
+    function preload() {
+
+        game.load.image('arrow', 'assets/sprites/arrow.png');
+        game.load.image('bullet', 'assets/sprites/purple_ball.png');
+
+    }
+
+    var nodemap = [];
+    var nodesprites = [];
+    var playerlist = [];
+    var sprite;
+    var bullets;
+
+    var fireRate = 100;
+    var nextFire = 0;
+
+    function create() {
+
+        game.physics.startSystem(Phaser.Physics.ARCADE);
+        
+        game.stage.backgroundColor = '#313131';
+
+        bullets = game.add.group();
+        bullets.enableBody = true;
+        bullets.physicsBodyType = Phaser.Physics.ARCADE;
+        bullets.createMultiple(50, 'bullet');
+        bullets.setAll('checkWorldBounds', true);
+        bullets.setAll('outOfBoundsKill', true);
+
+        sprite = game.add.sprite(400, 300, 'arrow');
+        sprite.anchor.set(0.5);
+
+        game.physics.enable(sprite, Phaser.Physics.ARCADE);
+
+        sprite.body.allowRotation = false;
+    }
+
+    function update() {
+
+        sprite.rotation = game.physics.arcade.angleToPointer(sprite);
+        
+        //prevent this action if pointer is within a certain radius of the sprite
+        if (game.input.activePointer.isDown) {
+            fire();
+        }
+
+    }
+
+    function fire() {
+
+        if (game.time.now > nextFire && bullets.countDead() > 0) {
+            nextFire = game.time.now + fireRate;
+
+            var bullet = bullets.getFirstDead();
+            bullet.reset(sprite.x - 8, sprite.y - 8);
+
+            game.physics.arcade.moveToPointer(bullet, 300);
+        }
+
+    }
+
+    function render() {
+
+        game.debug.text('Active Bullets: ' + bullets.countLiving() + ' / ' + bullets.total, 32, 32);
+        game.debug.spriteInfo(sprite, 32, 450);
+
+    }
+
+
+</script>
+
+</body>
+</html>
