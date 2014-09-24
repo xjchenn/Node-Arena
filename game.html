@@ -2,8 +2,8 @@
 <html lang="en"> 
 <head> 
 	<meta charset="UTF-8" />
-	<title>Phaser - Making your first game, part 1</title>
-	<script type="text/javascript" src="js/phaser.js"></script>
+	<title>Node Arena</title>
+	<script type="text/javascript" src="phaser.js"></script>
     <style type="text/css">
         body {
             margin: 0;
@@ -108,10 +108,9 @@
         this.previousmove = null;
     };
 
-    AIPlayer.prototype = new Player();
+    AIPlayer.prototype = Player.prototype;
 
     AIPlayer.prototype.makeMove = function () {
-        var direction;
         var possibledirections = [];
         if(this.checkMove('left'))
             possibledirections.push('left');
@@ -127,7 +126,7 @@
         possibledirections.push(previousmove);
         var rand = (Math.random() * possibledirections.length);
         this.moveTo(possibledirections[rand]);
-        this.previousmove = direction;
+        this.previousmove = possibledirections[rand];
     };
 
     AIPlayer.prototype.getNextAttack = function () {
@@ -208,6 +207,39 @@
             var nodesprite = game.add.sprite(nodemap[i].position.x, nodemap[i].position.y, 'node');
             nodesprite.anchor.set(0.5);
             nodesprites.push(nodesprite);
+            if (nodemap[i].left !== null)
+            {
+                var line = game.add.graphics(0, 0);
+                line.lineStyle(3, 0x0000FF, 1);
+                line.beginFill(0xFFFF0B, 0.75);
+                line.moveTo(nodemap[i].position.x, nodemap[i].position.x);
+                line.lineTo(nodemap[i].left.position.x, nodemap[i].left.position.x);
+                nodeconnectors.push(line);
+            }
+            if (nodemap[i].right !== null) {
+                var line = game.add.graphics(0, 0);
+                line.lineStyle(3, 0x0000FF, 1);
+                line.beginFill(0xFFFF0B, 0.75);
+                line.moveTo(nodemap[i].position.x, nodemap[i].position.x);
+                line.lineTo(nodemap[i].right.position.x, nodemap[i].right.position.x);
+                nodeconnectors.push(line);
+            }
+            if (nodemap[i].up !== null) {
+                var line = game.add.graphics(0, 0);
+                line.lineStyle(3, 0x0000FF, 1);
+                line.beginFill(0xFFFF0B, 0.75);
+                line.moveTo(nodemap[i].position.x, nodemap[i].position.x);
+                line.lineTo(nodemap[i].up.position.x, nodemap[i].up.position.x);
+                nodeconnectors.push(line);
+            }
+            if (nodemap[i].down !== null) {
+                var line = game.add.graphics(0, 0);
+                line.lineStyle(3, 0x0000FF, 1);
+                line.beginFill(0xFFFF0B, 0.75);
+                line.moveTo(nodemap[i].position.x, nodemap[i].position.x);
+                line.lineTo(nodemap[i].down.position.x, nodemap[i].down.position.x);
+                nodeconnectors.push(line);
+            }
         }
     }
 
@@ -227,12 +259,20 @@
     function preload() {
 
         game.load.image('arrow', 'assets/sprites/arrow.png');
+        game.load.image('node', 'assets/sprites/arrow.png');
         game.load.image('bullet', 'assets/sprites/purple_ball.png');
+        game.load.atlas('tank', 'assets/games/tanks/tanks.png', 'assets/games/tanks/tanks.json');
+        game.load.atlas('enemy', 'assets/games/tanks/enemy-tanks.png', 'assets/games/tanks/tanks.json');
+        game.load.image('logo', 'assets/games/tanks/logo.png');
+        game.load.image('bullet', 'assets/games/tanks/bullet.png');
+        game.load.image('earth', 'assets/games/tanks/scorched_earth.png');
+        game.load.spritesheet('kaboom', 'assets/games/tanks/explosion.png', 64, 64, 23);
 
     }
 
     var nodemap = [];
     var nodesprites = [];
+    var nodeconnectors = [];
     var playerlist = [];
     var sprite;
     var bullets;
