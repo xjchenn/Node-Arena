@@ -202,43 +202,27 @@
 
     function loadnodes()
     {
+		var graphics = game.add.graphics(0, 0);
+		graphics.lineStyle(10, 0xffd900, 1);
+		
         for (var i = 0; i < nodemap.length; i++) 
         {
             var nodesprite = game.add.sprite(nodemap[i].position.x, nodemap[i].position.y, 'node');
             nodesprite.anchor.set(0.5);
             nodesprites.push(nodesprite);
-            if (nodemap[i].left !== null)
-            {
-                var line = game.add.graphics(0, 0);
-                line.lineStyle(3, 0x0000FF, 1);
-                line.beginFill(0xFFFF0B, 0.75);
-                line.moveTo(nodemap[i].position.x, nodemap[i].position.x);
-                line.lineTo(nodemap[i].left.position.x, nodemap[i].left.position.x);
-                nodeconnectors.push(line);
+			
+			graphics.moveTo(nodemap[i].position.x, nodemap[i].position.y);
+            if (nodemap[i].left !== null)  {
+                graphics.lineTo(nodemap[i].left.position.x, nodemap[i].left.position.y);
             }
             if (nodemap[i].right !== null) {
-                var line = game.add.graphics(0, 0);
-                line.lineStyle(3, 0x0000FF, 1);
-                line.beginFill(0xFFFF0B, 0.75);
-                line.moveTo(nodemap[i].position.x, nodemap[i].position.x);
-                line.lineTo(nodemap[i].right.position.x, nodemap[i].right.position.x);
-                nodeconnectors.push(line);
+                graphics.lineTo(nodemap[i].right.position.x, nodemap[i].right.position.y);
             }
             if (nodemap[i].up !== null) {
-                var line = game.add.graphics(0, 0);
-                line.lineStyle(3, 0x0000FF, 1);
-                line.beginFill(0xFFFF0B, 0.75);
-                line.moveTo(nodemap[i].position.x, nodemap[i].position.x);
-                line.lineTo(nodemap[i].up.position.x, nodemap[i].up.position.x);
-                nodeconnectors.push(line);
+                graphics.lineTo(nodemap[i].up.position.x, nodemap[i].up.position.y);
             }
             if (nodemap[i].down !== null) {
-                var line = game.add.graphics(0, 0);
-                line.lineStyle(3, 0x0000FF, 1);
-                line.beginFill(0xFFFF0B, 0.75);
-                line.moveTo(nodemap[i].position.x, nodemap[i].position.x);
-                line.lineTo(nodemap[i].down.position.x, nodemap[i].down.position.x);
-                nodeconnectors.push(line);
+                graphics.lineTo(nodemap[i].down.position.x, nodemap[i].down.position.y);
             }
         }
     }
@@ -259,7 +243,7 @@
     function preload() {
 
         game.load.image('arrow', 'assets/sprites/arrow.png');
-        game.load.image('node', 'assets/sprites/arrow.png');
+        game.load.image('node', 'assets/sprites/purple_ball.png');
         game.load.image('bullet', 'assets/sprites/purple_ball.png');
         game.load.atlas('tank', 'assets/games/tanks/tanks.png', 'assets/games/tanks/tanks.json');
         game.load.atlas('enemy', 'assets/games/tanks/enemy-tanks.png', 'assets/games/tanks/tanks.json');
@@ -285,6 +269,9 @@
         game.physics.startSystem(Phaser.Physics.ARCADE);
         
         game.stage.backgroundColor = '#313131';
+		
+		createnodes();
+		loadnodes();
 
         bullets = game.add.group();
         bullets.enableBody = true;
@@ -299,6 +286,7 @@
         game.physics.enable(sprite, Phaser.Physics.ARCADE);
 
         sprite.body.allowRotation = false;
+	
     }
 
     function update() {
